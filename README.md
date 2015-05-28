@@ -8,20 +8,22 @@ inspired from [Elutz](https://github.com/elutz "Elutz Profile")'s
 This way, you can have your team's commits inside 4D. 
 
 
+## IMPORTANT !
+* The 4D_VC_GIT Component depends on these components :
+  * [VC_Framework_v14](https://github.com/4D/vc-framework-v14 "VC_Framework_V14")
+  * [Prog_v14](https://github.com/4D/prog-v14 "Progressbars")
+
+  So don't forget to add them to your Components folder.
+* Make sure "git" executable is in your system path. The component can't work without it.
+* Rename the file "rename.gitignore" --to--> ".gitignore" in the root folder of the database you want to import VC_GIT component in. This will prevent unwanted files to be commited to your 4D Project git repositories.
+
+
 ## How It Works
 * 4D methods are nested inside the .4DB file. It is therefore impossible to Version Control your code. 
 * The VC_Framework component creates txt files for the methods & the forms of your 4D project and saves your changes constantly
 in these txt files. Making it possible to use a version control system.
 * You can then use git CLI tool to commit your changes, push, pull, ...
 * When you need to import your team's changes pulled from central repository back to 4D, just Run the **VC_GIT_IMPORT** method. And you're set !
-
-
-## Important !
-The 4D_VC_GIT Component depends on these components :
-* [VC_Framework_v14](https://github.com/4D/vc-framework-v14 "VC_Framework_V14")
-* [Prog_v14](https://github.com/4D/prog-v14 "Progressbars")
-
-So don't forget to add them to your Components folder.
 
 
 ## Notes
