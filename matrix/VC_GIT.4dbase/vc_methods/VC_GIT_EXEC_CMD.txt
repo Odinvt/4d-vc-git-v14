@@ -1,0 +1,84 @@
+//%attributes = {"lang":"en","shared":true,"executedOnServer":true} comment added and reserved by 4D.
+// $1 : command
+// $2 : args
+// $3 : -> stdout
+// $4 : -> stderr
+// VC_GIT_OK : if command executed successful
+// VC_GIT_ERR_MSG : Error message. Empty if there is none
+// VC_GIT_LAST_COMMIT_SHA : last git commit hashcode in local history
+
+
+C_TEXT($input;$output;$error;VC_GIT_ERR_MSG)
+C_LONGINT(VC_GIT_OK)
+VC_GIT_OK:=0
+VC_GIT_ERR_MSG:=""
+
+// system path to working directory
+$path:=Convert path system to POSIX("/";*)
+$path:=Convert path POSIX to system($path;*)
+
+// cd to that path and hide console
+SET ENVIRONMENT VARIABLE("_4D_OPTION_CURRENT_DIRECTORY";$path)
+SET ENVIRONMENT VARIABLE("_4D_OPTION_HIDE_CONSOLE";"true")
+
+$input:=""
+
+// first let's run "git --version" to check if git is installed and in System Path
+LAUNCH EXTERNAL PROCESS("git --version";$input;$output;$error)
+
+If ($output="@git version@")
+
+// git is installed and configured
+// let's try and get the last commit sha
+SET ENVIRONMENT VARIABLE("_4D_OPTION_CURRENT_DIRECTORY";$path)
+SET ENVIRONMENT VARIABLE("_4D_OPTION_HIDE_CONSOLE";"true")
+LAUNCH EXTERNAL PROCESS("git log --oneline -n1 --format=%h";$input;$output;$error)
+// save last commit SHA
+VC_GIT_LAST_COMMIT_SHA:=$output
+
+VC_GIT_LAST_COMMIT_SHA:=Replace string(VC_GIT_LAST_COMMIT_SHA;Char(Line feed);"")
+VC_GIT_LAST_COMMIT_SHA:=Replace string(VC_GIT_LAST_COMMIT_SHA;Char(Carriage return);"")
+ALERT("VC_GIT_LAST_COMMIT_SHA : "+VC_GIT_LAST_COMMIT_SHA+" Writen by VC_GIT_EXEC_CMD")
+If ($error="fatal: Not a git repository@")
+VC_GIT_ERR_MSG:="This is not a git repository. Please try and init a repository in this database working directory or clone one"
+Else 
+// git and installed and repository initiated
+// checking which command is called
+Case of 
+: ($1="commit")
+
+: ($1="add")
+
+: ($1="status")
+
+: ($1="")
+
+Else 
+// in this case there needs to be at least 1 commit
+// checking if last commit is empty
+If (VC_GIT_LAST_COMMIT_SHA="")
+// error please commit
+VC_GIT_ERR_MSG:="You need to have at least 1 commit in your local history. Check your changes 'git status', Stage them : 'git add --all' and commit 'git commit -m \"First Commit\"'. Then try again."
+
+Else 
+// everything is ok
+// executing the command
+SET ENVIRONMENT VARIABLE("_4D_OPTION_CURRENT_DIRECTORY";$path)
+SET ENVIRONMENT VARIABLE("_4D_OPTION_HIDE_CONSOLE";"true")
+C_TEXT($cmd)
+$cmd:="git "+$1+" "+$2+" "
+LAUNCH EXTERNAL PROCESS($cmd;$input;$output;$error)
+ALERT("Executed : "+$cmd+" --- outputed : \n"+$output)
+$3->:=$output
+$4->:=$error
+If ($error="")
+VC_GIT_OK:=1
+End if 
+End if 
+End case 
+
+
+End if 
+Else 
+VC_GIT_ERR_MSG:="Git is not installed or not in system path. Please install GIT and add it to system path so that \"git --version\" gives you the version of GIT on your system"
+End if 
