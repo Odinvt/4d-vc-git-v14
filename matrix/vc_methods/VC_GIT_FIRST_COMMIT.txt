@@ -1,0 +1,34 @@
+//%attributes = {"lang":"en","shared":true,"executedOnServer":true} comment added and reserved by 4D.
+
+// VC_GIT_FIRST_COMMIT_SHA : first git commit hashcode in local history
+
+
+
+C_TEXT($output;$error;$first_commit_sha;VC_GIT_FIRST_COMMIT_SHA)
+
+VC_GIT_EXEC_CMD ("log";"--oneline --format=%h --max-parents=0";->$output;->$error)
+
+If (VC_GIT_OK=0)
+ALERT("Error found at VC_GIT_EXEC_CMD while executing 'git log --oneline --format=%h --max-parents=0' showed at VC8GIT_FIRST_COMMIT : "+VC_GIT_ERR_MSG)
+Else 
+ALERT("'git log --oneline --format=%h --max-parents=0' outputed : "+$output)
+C_LONGINT($CR_position;$length_CR)
+$CR_position:=Position("\n";$output;1;$length_CR)
+If ($CR_position=0)
+// no Carriage return, take whole string
+$first_commit_sha:=$output
+Else 
+//Carriage Return found take first string
+$first_commit_sha:=Substring($output;1;$CR_position-1)
+End if 
+
+VC_GIT_FIRST_COMMIT_SHA:=$first_commit_sha
+VC_GIT_FIRST_COMMIT_SHA:=Replace string(VC_GIT_FIRST_COMMIT_SHA;Char(Line feed);"")
+VC_GIT_FIRST_COMMIT_SHA:=Replace string(VC_GIT_FIRST_COMMIT_SHA;Char(Carriage return);"")
+
+ALERT("setting VC_GIT_FIRST_COMMIT_SHA to : "+VC_GIT_FIRST_COMMIT_SHA+" by VC_GIT_FIRST_COMMIT")
+
+// First commit set and global vc_git_ok set to true
+VC_GIT_OK:=1
+
+End if 

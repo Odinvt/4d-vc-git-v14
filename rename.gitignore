@@ -1,0 +1,20 @@
+Components/**/*
+Logs/**/*
+Preferences/**/*
+Resources/**/*
+Folder_Reports/**/*
+Plugins/**/*
+temporary\ files/**/*
+*.4DB
+*.4DIndy
+*.4DD
+*.4DIndx
+*.Match
+*.journal
+!vc_data/*.4DB
+!vc_data/*.4DIndy
+!vc_data/*.4DD
+!vc_data/*.4DIndx
+!vc_data/*.Match
+!vc_data/*.journal
+last_imported_commit_sha.git
